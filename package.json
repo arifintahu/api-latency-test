@@ -1,0 +1,28 @@
+{
+  "name": "api-latency-test",
+  "version": "1.0.0",
+  "description": "A lightweight JavaScript tool to measure API performance through sequential HTTP requests",
+  "main": "latency-test.js",
+  "type": "module",
+  "scripts": {
+    "test": "node latency-test.js",
+    "start": "node latency-test.js"
+  },
+  "keywords": [
+    "api",
+    "latency",
+    "performance",
+    "testing",
+    "monitoring",
+    "http",
+    "fetch"
+  ],
+  "author": "API Performance Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}
