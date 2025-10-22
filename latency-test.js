@@ -16,6 +16,15 @@ const DEFAULT_REQUEST_COUNT = 5;
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const LOG_FILE_PATH = process.env.LOG_FILE_PATH || './latency-test-results.json';
 
+function getConfiguredTimeout() {
+  const raw = process.env.REQUEST_TIMEOUT;
+  const parsed = parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_TIMEOUT;
+  }
+  return parsed;
+}
+
 // Latency evaluation helpers
 function categorizeLatency(latencyMs) {
   if (latencyMs < 300) return 'Fast (Excellent)';
@@ -143,17 +152,17 @@ async function performSingleRequest(apiUrl, requestNumber, timeout = DEFAULT_TIM
  * @returns {Promise<Object>} Test results with individual results and summary
  */
 async function performLatencyTest(apiUrl, requestCount = DEFAULT_REQUEST_COUNT) {
+  const timeout = getConfiguredTimeout();
   console.log(`\n🎯 Starting API latency test...`);
   console.log(`📍 Target URL: ${apiUrl}`);
   console.log(`🔢 Number of requests: ${requestCount}`);
-  console.log(`⏱️  Timeout: ${DEFAULT_TIMEOUT}ms`);
+  console.log(`⏱️  Timeout: ${timeout}ms`);
   console.log(`${'='.repeat(60)}\n`);
   
   const results = [];
-  const timeout = parseInt(process.env.REQUEST_TIMEOUT) || DEFAULT_TIMEOUT;
   
   for (let i = 1; i <= requestCount; i++) {
-    const result = await performSingleRequest(apiUrl, i, requestCount, timeout);
+    const result = await performSingleRequest(apiUrl, i, timeout);
     results.push(result);
     
     // Small delay between requests to avoid overwhelming the server
@@ -257,7 +266,7 @@ async function logResults(apiUrl, results, metrics) {
   const timestamp = new Date().toISOString();
   
   const configuredRequestCount = parseInt(process.env.REQUEST_COUNT) || DEFAULT_REQUEST_COUNT;
-  const configuredTimeout = parseInt(process.env.REQUEST_TIMEOUT) || DEFAULT_TIMEOUT;
+  const configuredTimeout = getConfiguredTimeout();
 
   const logEntry = {
     sessionId,
