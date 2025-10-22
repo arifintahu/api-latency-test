@@ -10,6 +10,7 @@ dotenv.config();
 // Configuration constants
 const DEFAULT_REQUEST_COUNT = 5;
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
+const DEFAULT_DELAY = 300; // 300 miliseconds
 const LOG_FILE_PATH = process.env.LOG_FILE_PATH || './latency-test-results.json';
 
 function getConfiguredTimeout() {
@@ -17,6 +18,15 @@ function getConfiguredTimeout() {
   const parsed = parseInt(raw, 10);
   if (!Number.isFinite(parsed) || parsed <= 0) {
     return DEFAULT_TIMEOUT;
+  }
+  return parsed;
+}
+
+function getConfiguredDelay() {
+  const raw = process.env.REQUEST_DELAY;
+  const parsed = parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return DEFAULT_DELAY;
   }
   return parsed;
 }
@@ -149,10 +159,12 @@ async function performSingleRequest(apiUrl, requestNumber, timeout = DEFAULT_TIM
  */
 async function performLatencyTest(apiUrl, requestCount = DEFAULT_REQUEST_COUNT) {
   const timeout = getConfiguredTimeout();
+  const delayMs = getConfiguredDelay();
   console.log(`\n🎯 Starting API latency test...`);
   console.log(`📍 Target URL: ${apiUrl}`);
   console.log(`🔢 Number of requests: ${requestCount}`);
   console.log(`⏱️  Timeout: ${timeout}ms`);
+  console.log(`⏳ Delay between requests: ${delayMs}ms`);
   console.log(`${'='.repeat(60)}\n`);
   
   const results = [];
@@ -161,9 +173,8 @@ async function performLatencyTest(apiUrl, requestCount = DEFAULT_REQUEST_COUNT) 
     const result = await performSingleRequest(apiUrl, i, timeout);
     results.push(result);
     
-    // Small delay between requests to avoid overwhelming the server
     if (i < requestCount) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, delayMs));
     }
   }
   
@@ -263,6 +274,7 @@ async function logResults(apiUrl, results, metrics) {
   
   const configuredRequestCount = parseInt(process.env.REQUEST_COUNT) || DEFAULT_REQUEST_COUNT;
   const configuredTimeout = getConfiguredTimeout();
+  const configuredDelay = getConfiguredDelay();
 
   const logEntry = {
     sessionId,
@@ -270,7 +282,8 @@ async function logResults(apiUrl, results, metrics) {
     apiUrl,
     configuration: {
       requestCount: configuredRequestCount,
-      timeout: configuredTimeout
+      timeout: configuredTimeout,
+      delayMs: configuredDelay
     },
     evaluationCriteria: {
       fast: '<300ms',
@@ -284,7 +297,6 @@ async function logResults(apiUrl, results, metrics) {
   try {
     let existingLogs = [];
     
-    // Read existing log file if it exists
     if (fs.existsSync(LOG_FILE_PATH)) {
       const fileContent = fs.readFileSync(LOG_FILE_PATH, 'utf8');
       if (fileContent.trim()) {
@@ -292,15 +304,12 @@ async function logResults(apiUrl, results, metrics) {
       }
     }
     
-    // Ensure existingLogs is an array
     if (!Array.isArray(existingLogs)) {
       existingLogs = [];
     }
     
-    // Add new log entry
     existingLogs.push(logEntry);
     
-    // Write back to file
     fs.writeFileSync(LOG_FILE_PATH, JSON.stringify(existingLogs, null, 2));
     
     console.log(`💾 Results saved to: ${path.resolve(LOG_FILE_PATH)}`);

@@ -55,6 +55,7 @@ Create a `.env` file in the project root with the following variables:
 | `API_URL` | ✅ Yes | - | The API endpoint URL to test |
 | `REQUEST_COUNT` | ❌ No | 5 | Number of sequential requests to perform |
 | `REQUEST_TIMEOUT` | ❌ No | 30000 | Request timeout in milliseconds |
+| `REQUEST_DELAY` | ❌ No | 300 | Delay between sequential requests in milliseconds |
 | `LOG_FILE_PATH` | ❌ No | `./latency-test-results.json` | Path to save historical results |
 
 ### Example Configuration
@@ -66,6 +67,7 @@ API_URL=http://localhost:8081/v1/treasury/timeseries?request_id=0xee17D0A2433619
 # Optional
 REQUEST_COUNT=7
 REQUEST_TIMEOUT=30000
+REQUEST_DELAY=300
 LOG_FILE_PATH=./my-api-tests.json
 ```
 
@@ -87,6 +89,12 @@ node latency-test.js
 # Test with custom timeout
 export API_URL="https://httpbin.org/delay/2"
 export REQUEST_TIMEOUT=5000
+node latency-test.js
+
+# Test with custom inter-request delay
+export API_URL="https://jsonplaceholder.typicode.com/posts/1"
+export REQUEST_COUNT=5
+export REQUEST_DELAY=750
 node latency-test.js
 ```
 
@@ -112,6 +120,7 @@ During the test run, each request and the average latency are labeled with these
 📍 Target URL: https://jsonplaceholder.typicode.com/posts/1
 🔢 Number of requests: 5
 ⏱️  Timeout: 30000ms
+⏳ Delay between requests: 300ms
 ============================================================
 
 🚀 Request 1/5: Starting...
@@ -144,6 +153,7 @@ During the test run, each request and the average latency are labeled with these
 ❌ Failed: 0
 📊 Success Rate: 100%
 ⚡ Average Latency: 211ms
+🏷️ Average Category: Fast (Excellent)
 🚀 Fastest Request: 189ms
 🐌 Slowest Request: 245ms
 ============================================================
@@ -164,7 +174,8 @@ The tool saves detailed results in JSON format:
     "apiUrl": "https://jsonplaceholder.typicode.com/posts/1",
     "configuration": {
       "requestCount": 5,
-      "timeout": 30000
+      "timeout": 30000,
+      "delayMs": 300
     },
     "results": [
       {
@@ -183,7 +194,8 @@ The tool saves detailed results in JSON format:
       "averageLatency": 211,
       "minLatency": 189,
       "maxLatency": 245,
-      "successRate": 100
+      "successRate": 100,
+      "averageCategory": "Fast (Excellent)"
     }
   }
 ]
