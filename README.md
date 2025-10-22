@@ -90,6 +90,18 @@ export REQUEST_TIMEOUT=5000
 node latency-test.js
 ```
 
+## Latency Evaluation
+
+This tool categorizes latency using practical user-perception thresholds:
+
+| Category | Latency Range | Description | User Perception |
+|---------|---------------|-------------|-----------------|
+| Fast (Excellent) | < 100–300 ms | Ideal for most user-facing APIs; feels instantaneous. Common in high-performance systems like e-commerce or social media. | No noticeable delay; seamless experience. |
+| Medium (Acceptable/Good) | 300–1000 ms (≈1 second) | Noticeable but tolerable for standard web APIs; suitable for moderately complex operations like data fetches. Beyond 500 ms, users may start feeling a slight wait. | Minor interruption, but flow isn't broken. |
+| Slow (Poor/Unacceptable) | > 1000 ms (>1 second) | Degrades performance significantly; users may abandon requests at 2–10 seconds. Critical for optimization in production. | Frustrating wait; high risk of timeouts or user drop-off. |
+
+During the test run, each request and the average latency are labeled with these categories.
+
 ## Sample Output
 
 ```
@@ -103,7 +115,7 @@ node latency-test.js
 ============================================================
 
 🚀 Request 1/5: Starting...
-✅ Request 1/5: 245ms (Status: 200)
+✅ Request 1/5: 245ms (Status: 200) (Fast (Excellent))
 🚀 Request 2/5: Starting...
 ✅ Request 2/5: 198ms (Status: 200)
 🚀 Request 3/5: Starting...

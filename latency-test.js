@@ -16,6 +16,13 @@ const DEFAULT_REQUEST_COUNT = 5;
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const LOG_FILE_PATH = process.env.LOG_FILE_PATH || './latency-test-results.json';
 
+// Latency evaluation helpers
+function categorizeLatency(latencyMs) {
+  if (latencyMs < 300) return 'Fast (Excellent)';
+  if (latencyMs <= 1000) return 'Medium (Acceptable/Good)';
+  return 'Slow (Poor/Unacceptable)';
+}
+
 /**
  * Generates a simple UUID v4 string
  * @returns {string} UUID v4 string
@@ -65,12 +72,12 @@ function validateEnvironment() {
  * @param {number} timeout - Request timeout in milliseconds
  * @returns {Promise<Object>} LatencyResult object
  */
-async function performSingleRequest(apiUrl, requestNumber, totalRequests, timeout = DEFAULT_TIMEOUT) {
+async function performSingleRequest(apiUrl, requestNumber, timeout = DEFAULT_TIMEOUT) {
   const startTime = performance.now();
   const timestamp = new Date().toISOString();
   
   try {
-    console.log(`🚀 Request ${requestNumber}/${totalRequests}: Starting...`);
+    console.log(`🚀 Request ${requestNumber}: Starting...`);
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -94,10 +101,11 @@ async function performSingleRequest(apiUrl, requestNumber, totalRequests, timeou
       timestamp,
       statusCode: response.status,
       success: response.ok,
-      errorMessage: response.ok ? null : `HTTP ${response.status}: ${response.statusText}`
+      errorMessage: response.ok ? null : `HTTP ${response.status}: ${response.statusText}`,
+      category: response.ok ? categorizeLatency(latency) : null
     };
     
-    console.log(`✅ Request ${requestNumber}/${totalRequests}: ${latency}ms (Status: ${response.status})`);
+    console.log(`✅ Request ${requestNumber}: ${latency}ms (Status: ${response.status})${result.category ? ` - ${result.category}` : ''}`);
     return result;
     
   } catch (error) {
@@ -119,10 +127,11 @@ async function performSingleRequest(apiUrl, requestNumber, totalRequests, timeou
       timestamp,
       statusCode: 0,
       success: false,
-      errorMessage
+      errorMessage,
+      category: null
     };
     
-    console.log(`❌ Request ${requestNumber}/${totalRequests}: Failed - ${errorMessage}`);
+    console.log(`❌ Request ${requestNumber}: Failed - ${errorMessage}`);
     return result;
   }
 }
@@ -173,7 +182,8 @@ function calculateMetrics(results) {
       averageLatency: 0,
       minLatency: 0,
       maxLatency: 0,
-      successRate: 0
+      successRate: 0,
+      averageCategory: 'N/A'
     };
   }
   
@@ -190,7 +200,8 @@ function calculateMetrics(results) {
     averageLatency,
     minLatency,
     maxLatency,
-    successRate
+    successRate,
+    averageCategory: categorizeLatency(averageLatency)
   };
 }
 
@@ -210,7 +221,8 @@ function displayResults(results, metrics) {
   results.forEach(result => {
     const status = result.success ? '✅' : '❌';
     const statusText = result.success ? 'SUCCESS' : 'FAILED';
-    console.log(`${status} Request ${result.requestNumber}: ${result.latency}ms - ${statusText}`);
+    const categoryText = result.success && result.category ? ` (${result.category})` : '';
+    console.log(`${status} Request ${result.requestNumber}: ${result.latency}ms - ${statusText}${categoryText}`);
     if (!result.success && result.errorMessage) {
       console.log(`   └─ Error: ${result.errorMessage}`);
     }
@@ -226,6 +238,7 @@ function displayResults(results, metrics) {
   
   if (metrics.successfulRequests > 0) {
     console.log(`⚡ Average Latency: ${metrics.averageLatency}ms`);
+    console.log(`🏷️ Average Category: ${metrics.averageCategory}`);
     console.log(`🚀 Fastest Request: ${metrics.minLatency}ms`);
     console.log(`🐌 Slowest Request: ${metrics.maxLatency}ms`);
   }
@@ -253,6 +266,11 @@ async function logResults(apiUrl, results, metrics) {
     configuration: {
       requestCount: configuredRequestCount,
       timeout: configuredTimeout
+    },
+    evaluationCriteria: {
+      fast: '<300ms',
+      medium: '300-1000ms',
+      slow: '>1000ms'
     },
     results,
     summary: metrics
