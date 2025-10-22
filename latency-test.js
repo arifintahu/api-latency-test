@@ -65,12 +65,12 @@ function validateEnvironment() {
  * @param {number} timeout - Request timeout in milliseconds
  * @returns {Promise<Object>} LatencyResult object
  */
-async function performSingleRequest(apiUrl, requestNumber, timeout = DEFAULT_TIMEOUT) {
+async function performSingleRequest(apiUrl, requestNumber, totalRequests, timeout = DEFAULT_TIMEOUT) {
   const startTime = performance.now();
   const timestamp = new Date().toISOString();
   
   try {
-    console.log(`🚀 Request ${requestNumber}/5: Starting...`);
+    console.log(`🚀 Request ${requestNumber}/${totalRequests}: Starting...`);
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -97,7 +97,7 @@ async function performSingleRequest(apiUrl, requestNumber, timeout = DEFAULT_TIM
       errorMessage: response.ok ? null : `HTTP ${response.status}: ${response.statusText}`
     };
     
-    console.log(`✅ Request ${requestNumber}/5: ${latency}ms (Status: ${response.status})`);
+    console.log(`✅ Request ${requestNumber}/${totalRequests}: ${latency}ms (Status: ${response.status})`);
     return result;
     
   } catch (error) {
@@ -122,7 +122,7 @@ async function performSingleRequest(apiUrl, requestNumber, timeout = DEFAULT_TIM
       errorMessage
     };
     
-    console.log(`❌ Request ${requestNumber}/5: Failed - ${errorMessage}`);
+    console.log(`❌ Request ${requestNumber}/${totalRequests}: Failed - ${errorMessage}`);
     return result;
   }
 }
@@ -144,7 +144,7 @@ async function performLatencyTest(apiUrl, requestCount = DEFAULT_REQUEST_COUNT) 
   const timeout = parseInt(process.env.REQUEST_TIMEOUT) || DEFAULT_TIMEOUT;
   
   for (let i = 1; i <= requestCount; i++) {
-    const result = await performSingleRequest(apiUrl, i, timeout);
+    const result = await performSingleRequest(apiUrl, i, requestCount, timeout);
     results.push(result);
     
     // Small delay between requests to avoid overwhelming the server
@@ -243,13 +243,16 @@ async function logResults(apiUrl, results, metrics) {
   const sessionId = generateUUID();
   const timestamp = new Date().toISOString();
   
+  const configuredRequestCount = parseInt(process.env.REQUEST_COUNT) || DEFAULT_REQUEST_COUNT;
+  const configuredTimeout = parseInt(process.env.REQUEST_TIMEOUT) || DEFAULT_TIMEOUT;
+
   const logEntry = {
     sessionId,
     timestamp,
     apiUrl,
     configuration: {
-      requestCount: results.length,
-      timeout: parseInt(process.env.REQUEST_TIMEOUT) || DEFAULT_TIMEOUT
+      requestCount: configuredRequestCount,
+      timeout: configuredTimeout
     },
     results,
     summary: metrics
@@ -304,10 +307,12 @@ async function main() {
   }
   
   const apiUrl = process.env.API_URL;
+  const envRequestCount = parseInt(process.env.REQUEST_COUNT);
+  const requestCount = Number.isFinite(envRequestCount) && envRequestCount > 0 ? envRequestCount : DEFAULT_REQUEST_COUNT;
   
   try {
     // Perform latency test
-    const results = await performLatencyTest(apiUrl);
+    const results = await performLatencyTest(apiUrl, requestCount);
     
     // Calculate metrics
     const metrics = calculateMetrics(results);

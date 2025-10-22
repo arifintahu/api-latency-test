@@ -53,6 +53,7 @@ Create a `.env` file in the project root with the following variables:
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `API_URL` | ✅ Yes | - | The API endpoint URL to test |
+| `REQUEST_COUNT` | ❌ No | 5 | Number of sequential requests to perform |
 | `REQUEST_TIMEOUT` | ❌ No | 30000 | Request timeout in milliseconds |
 | `LOG_FILE_PATH` | ❌ No | `./latency-test-results.json` | Path to save historical results |
 
@@ -63,6 +64,7 @@ Create a `.env` file in the project root with the following variables:
 API_URL=http://localhost:8081/v1/treasury/timeseries?request_id=0xee17D0A243361997245A0EBA740e26020952f249&balance_addresses=cosmos10z4zxezrqx2lwxcluf7rm9vqf93d2pwfsrvlat
 
 # Optional
+REQUEST_COUNT=7
 REQUEST_TIMEOUT=30000
 LOG_FILE_PATH=./my-api-tests.json
 ```
