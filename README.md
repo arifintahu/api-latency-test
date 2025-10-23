@@ -22,7 +22,7 @@ npm install -g apin
 After global installation, you can use `apin` command from anywhere:
 
 ```bash
-apin https://api.example.com/health --count 5 --timeout 30000 --delay 300
+apin "https://api.example.com/health" --count 5 --timeout 30000 --delay 300
 ```
 
 ### Local Installation
@@ -34,7 +34,7 @@ npm install apin
 Then run using npx:
 
 ```bash
-npx apin https://api.example.com/health --count 5
+npx apin "https://api.example.com/health" --count 5
 ```
 
 ## Usage
@@ -49,16 +49,16 @@ apin <url> [options]
 
 ```bash
 # Basic test with default settings (5 requests, 30s timeout, 300ms delay)
-apin https://jsonplaceholder.typicode.com/posts/1
+apin "https://jsonplaceholder.typicode.com/posts/1"
 
 # Custom configuration
-apin https://api.example.com/health --count 10 --timeout 5000 --delay 1000
+apin "https://api.example.com/health" --count 10 --timeout 5000 --delay 1000
 
 # Save results to custom location
-apin https://api.example.com/users --count 3 --log-path ./my-results.json
+apin "https://api.example.com/users" --count 3 --log-path ./my-results.json
 
 # Quick test with minimal delay
-apin https://httpbin.org/get --count 2 --delay 100
+apin "https://httpbin.org/get" --count 2 --delay 100
 ```
 
 ### Command Line Options
@@ -190,11 +190,11 @@ cd test-api-latency
 npm install
 
 # Test locally
-node bin/apin.js https://jsonplaceholder.typicode.com/posts/1 --count 2
+node bin/apin.js "https://jsonplaceholder.typicode.com/posts/1" --count 2
 
 # Link for global testing
 npm link
-apin https://jsonplaceholder.typicode.com/posts/1 --count 2
+apin "https://jsonplaceholder.typicode.com/posts/1" --count 2
 ```
 
 ### Project Structure
