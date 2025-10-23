@@ -16,7 +16,7 @@ A lightweight CLI tool to measure API performance through sequential HTTP reques
 ### Global Installation (Recommended)
 
 ```bash
-npm install -g apin
+npm install -g apin-test
 ```
 
 After global installation, you can use `apin` command from anywhere:
@@ -28,7 +28,7 @@ apin "https://api.example.com/health" --count 5 --timeout 30000 --delay 300
 ### Local Installation
 
 ```bash
-npm install apin
+npm install apin-test
 ```
 
 Then run using npx:
@@ -183,7 +183,7 @@ APIN automatically categorizes response times:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/arifintahu/api-latency-test.git
 cd test-api-latency
 
 # Install dependencies

@@ -7,6 +7,10 @@
   "bin": {
     "apin": "./bin/apin.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arifintahu/api-latency-test.git"
+  },
   "scripts": {
     "test": "node latency-test.js",
     "start": "node latency-test.js"
