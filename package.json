@@ -1,6 +1,6 @@
 {
   "name": "apin-test",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A lightweight CLI tool to measure API performance through sequential HTTP requests",
   "main": "latency-test.js",
   "type": "module",
