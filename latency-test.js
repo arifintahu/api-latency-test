@@ -7,6 +7,8 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file
 dotenv.config();
 
+const VERSION = '1.0.0';
+
 // Configuration constants
 const DEFAULT_REQUEST_COUNT = 5;
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
@@ -160,12 +162,6 @@ async function performSingleRequest(apiUrl, requestNumber, timeout = DEFAULT_TIM
 async function performLatencyTest(apiUrl, requestCount = DEFAULT_REQUEST_COUNT) {
   const timeout = getConfiguredTimeout();
   const delayMs = getConfiguredDelay();
-  console.log(`\n🎯 Starting API latency test...`);
-  console.log(`📍 Target URL: ${apiUrl}`);
-  console.log(`🔢 Number of requests: ${requestCount}`);
-  console.log(`⏱️  Timeout: ${timeout}ms`);
-  console.log(`⏳ Delay between requests: ${delayMs}ms`);
-  console.log(`${'='.repeat(60)}\n`);
   
   const results = [];
   
@@ -374,4 +370,19 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export { validateEnvironment, performLatencyTest, calculateMetrics, logResults };
+export { 
+  validateEnvironment, 
+  performLatencyTest, 
+  performSingleRequest,
+  calculateMetrics, 
+  logResults, 
+  displayResults,
+  categorizeLatency,
+  getConfiguredTimeout,
+  getConfiguredDelay,
+  generateUUID,
+  VERSION,
+  DEFAULT_REQUEST_COUNT,
+  DEFAULT_TIMEOUT,
+  DEFAULT_DELAY,
+};

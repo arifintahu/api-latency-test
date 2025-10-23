@@ -1,9 +1,12 @@
 {
   "name": "api-latency-test",
   "version": "1.0.0",
-  "description": "A lightweight JavaScript tool to measure API performance through sequential HTTP requests",
+  "description": "A lightweight CLI tool to measure API performance through sequential HTTP requests",
   "main": "latency-test.js",
   "type": "module",
+  "bin": {
+    "apin": "./bin/apin.js"
+  },
   "scripts": {
     "test": "node latency-test.js",
     "start": "node latency-test.js"
@@ -15,7 +18,9 @@
     "testing",
     "monitoring",
     "http",
-    "fetch"
+    "fetch",
+    "cli",
+    "command-line"
   ],
   "author": "API Performance Team",
   "license": "MIT",
@@ -23,6 +28,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "commander": "^11.1.0",
     "dotenv": "^16.3.1"
   }
 }

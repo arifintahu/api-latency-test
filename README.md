@@ -1,138 +1,104 @@
 # API Latency Testing Tool
 
-A lightweight JavaScript-based command-line tool designed to measure and monitor API performance through sequential HTTP requests, providing detailed latency metrics and historical tracking capabilities.
+A lightweight CLI tool to measure API performance through sequential HTTP requests. Perfect for monitoring API latency, testing response times, and evaluating API performance under different conditions.
 
 ## Features
 
-- 🚀 **Sequential Request Testing**: Performs 5 consecutive GET requests to measure API latency
-- ⚡ **Real-time Monitoring**: Displays individual request latencies as they complete
-- 📊 **Comprehensive Metrics**: Calculates average, minimum, and maximum latencies
-- 💾 **Historical Logging**: Saves all test results to JSON log files with timestamps
-- 🛡️ **Robust Error Handling**: Handles network issues, timeouts, and invalid responses
-- 🔧 **Environment Configuration**: Uses environment variables for flexible setup
-- 📈 **Success Rate Tracking**: Monitors request success/failure rates
-
-## Requirements
-
-- Node.js 18.0.0 or higher
-- Internet connection (for testing external APIs)
+- 🚀 **Fast & Lightweight**: Minimal dependencies, maximum performance
+- 📊 **Detailed Metrics**: Average, min, max latency with performance categorization
+- 🎯 **Flexible Configuration**: Customizable request count, timeout, and delays
+- 💾 **Persistent Logging**: JSON-formatted results with session tracking
+- 🌐 **Global CLI**: Install once, use anywhere
+- 📈 **Performance Categories**: Automatic categorization (Fast/Medium/Slow)
 
 ## Installation
 
-1. Clone or download this project
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-## Quick Start
-
-1. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
-
-2. **Edit the `.env` file** and set your API URL:
-   ```bash
-   API_URL=https://your-api-endpoint.com/path
-   ```
-
-3. **Run the test:**
-   ```bash
-   npm start
-   # or
-   node latency-test.js
-   ```
-
-## Configuration
-
-### Environment Variables
-
-Create a `.env` file in the project root with the following variables:
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `API_URL` | ✅ Yes | - | The API endpoint URL to test |
-| `REQUEST_COUNT` | ❌ No | 5 | Number of sequential requests to perform |
-| `REQUEST_TIMEOUT` | ❌ No | 30000 | Request timeout in milliseconds |
-| `REQUEST_DELAY` | ❌ No | 300 | Delay between sequential requests in milliseconds |
-| `LOG_FILE_PATH` | ❌ No | `./latency-test-results.json` | Path to save historical results |
-
-### Example Configuration
+### Global Installation (Recommended)
 
 ```bash
-# Required
-API_URL=http://localhost:8081/v1/treasury/timeseries?request_id=0xee17D0A243361997245A0EBA740e26020952f249&balance_addresses=cosmos10z4zxezrqx2lwxcluf7rm9vqf93d2pwfsrvlat
-
-# Optional
-REQUEST_COUNT=7
-REQUEST_TIMEOUT=30000
-REQUEST_DELAY=300
-LOG_FILE_PATH=./my-api-tests.json
+npm install -g apin
 ```
 
-## Usage Examples
+After global installation, you can use `apin` command from anywhere:
+
+```bash
+apin https://api.example.com/health --count 5 --timeout 30000 --delay 300
+```
+
+### Local Installation
+
+```bash
+npm install apin
+```
+
+Then run using npx:
+
+```bash
+npx apin https://api.example.com/health --count 5
+```
+
+## Usage
 
 ### Basic Usage
+
 ```bash
-# Set API URL and run test
-export API_URL="https://jsonplaceholder.typicode.com/posts/1"
-npm start
+apin <url> [options]
 ```
 
-### Testing Different APIs
+### Examples
+
 ```bash
-# Test GitHub API
-export API_URL="https://api.github.com/users/octocat"
-node latency-test.js
+# Basic test with default settings (5 requests, 30s timeout, 300ms delay)
+apin https://jsonplaceholder.typicode.com/posts/1
 
-# Test with custom timeout
-export API_URL="https://httpbin.org/delay/2"
-export REQUEST_TIMEOUT=5000
-node latency-test.js
+# Custom configuration
+apin https://api.example.com/health --count 10 --timeout 5000 --delay 1000
 
-# Test with custom inter-request delay
-export API_URL="https://jsonplaceholder.typicode.com/posts/1"
-export REQUEST_COUNT=5
-export REQUEST_DELAY=750
-node latency-test.js
+# Save results to custom location
+apin https://api.example.com/users --count 3 --log-path ./my-results.json
+
+# Quick test with minimal delay
+apin https://httpbin.org/get --count 2 --delay 100
 ```
 
-## Latency Evaluation
+### Command Line Options
 
-This tool categorizes latency using practical user-perception thresholds:
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--count` | `-c` | Number of requests to perform | `5` |
+| `--timeout` | `-t` | Request timeout in milliseconds | `30000` |
+| `--delay` | `-d` | Delay between requests in milliseconds | `300` |
+| `--log-path` | `-l` | Path to save test results | `~/latency-test-results.json` |
+| `--version` | `-V` | Show version number | - |
+| `--help` | `-h` | Show help information | - |
 
-| Category | Latency Range | Description | User Perception |
-|---------|---------------|-------------|-----------------|
-| Fast (Excellent) | < 100–300 ms | Ideal for most user-facing APIs; feels instantaneous. Common in high-performance systems like e-commerce or social media. | No noticeable delay; seamless experience. |
-| Medium (Acceptable/Good) | 300–1000 ms (≈1 second) | Noticeable but tolerable for standard web APIs; suitable for moderately complex operations like data fetches. Beyond 500 ms, users may start feeling a slight wait. | Minor interruption, but flow isn't broken. |
-| Slow (Poor/Unacceptable) | > 1000 ms (>1 second) | Degrades performance significantly; users may abandon requests at 2–10 seconds. Critical for optimization in production. | Frustrating wait; high risk of timeouts or user drop-off. |
+## Performance Categories
 
-During the test run, each request and the average latency are labeled with these categories.
+APIN automatically categorizes response times:
 
-## Sample Output
+- **Fast (Excellent)**: < 300ms ⚡
+- **Medium (Acceptable/Good)**: 300-1000ms 🟡
+- **Slow (Poor/Unacceptable)**: > 1000ms 🔴
 
+## Output Format
+
+### Console Output
 ```
 🔧 API Latency Testing Tool v1.0.0
 ============================================================
 
 🎯 Starting API latency test...
 📍 Target URL: https://jsonplaceholder.typicode.com/posts/1
-🔢 Number of requests: 5
-⏱️  Timeout: 30000ms
-⏳ Delay between requests: 300ms
+🔢 Number of requests: 2
+⏱️  Timeout: 10000ms
+⏳ Delay between requests: 1000ms
+💾 Log file: /home/user/latency-test-results.json
 ============================================================
 
-🚀 Request 1/5: Starting...
-✅ Request 1/5: 245ms (Status: 200) (Fast (Excellent))
-🚀 Request 2/5: Starting...
-✅ Request 2/5: 198ms (Status: 200)
-🚀 Request 3/5: Starting...
-✅ Request 3/5: 223ms (Status: 200)
-🚀 Request 4/5: Starting...
-✅ Request 4/5: 201ms (Status: 200)
-🚀 Request 5/5: Starting...
-✅ Request 5/5: 189ms (Status: 200)
+🚀 Request 1: Starting...
+✅ Request 1: 181ms (Status: 200) - Fast (Excellent)
+🚀 Request 2: Starting...
+✅ Request 2: 37ms (Status: 200) - Fast (Excellent)
 
 ============================================================
 📊 TEST RESULTS SUMMARY
@@ -140,60 +106,60 @@ During the test run, each request and the average latency are labeled with these
 
 📋 Individual Request Results:
 ────────────────────────────────────────────────────────────
-✅ Request 1: 245ms - SUCCESS
-✅ Request 2: 198ms - SUCCESS
-✅ Request 3: 223ms - SUCCESS
-✅ Request 4: 201ms - SUCCESS
-✅ Request 5: 189ms - SUCCESS
+✅ Request 1: 181ms - SUCCESS (Fast (Excellent))
+✅ Request 2: 37ms - SUCCESS (Fast (Excellent))
 
 📈 Performance Metrics:
 ────────────────────────────────────────────────────────────
-🎯 Total Requests: 5
-✅ Successful: 5
+🎯 Total Requests: 2
+✅ Successful: 2
 ❌ Failed: 0
 📊 Success Rate: 100%
-⚡ Average Latency: 211ms
+⚡ Average Latency: 109ms
 🏷️ Average Category: Fast (Excellent)
-🚀 Fastest Request: 189ms
-🐌 Slowest Request: 245ms
+🚀 Fastest Request: 37ms
+🐌 Slowest Request: 181ms
 ============================================================
 
-💾 Results saved to: /path/to/latency-test-results.json
-🆔 Session ID: 12345678-1234-4567-8901-123456789012
+💾 Results saved to: /home/user/latency-test-results.json
+🆔 Session ID: bced0e2e-253e-4de8-93ca-a520f31e2e48
 ```
 
-## Log File Format
-
-The tool saves detailed results in JSON format:
-
+### JSON Log Format
 ```json
 [
   {
-    "sessionId": "12345678-1234-4567-8901-123456789012",
-    "timestamp": "2024-01-15T10:30:00.000Z",
+    "sessionId": "bced0e2e-253e-4de8-93ca-a520f31e2e48",
+    "timestamp": "2024-01-15T10:30:45.123Z",
     "apiUrl": "https://jsonplaceholder.typicode.com/posts/1",
     "configuration": {
-      "requestCount": 5,
-      "timeout": 30000,
-      "delayMs": 300
+      "requestCount": 2,
+      "timeout": 10000,
+      "delayMs": 1000
+    },
+    "evaluationCriteria": {
+      "fast": "<300ms",
+      "medium": "300-1000ms",
+      "slow": ">1000ms"
     },
     "results": [
       {
         "requestNumber": 1,
-        "latency": 245,
-        "timestamp": "2024-01-15T10:30:01.245Z",
+        "latency": 181,
+        "timestamp": "2024-01-15T10:30:45.123Z",
         "statusCode": 200,
         "success": true,
-        "errorMessage": null
+        "errorMessage": null,
+        "category": "Fast (Excellent)"
       }
     ],
     "summary": {
-      "totalRequests": 5,
-      "successfulRequests": 5,
+      "totalRequests": 2,
+      "successfulRequests": 2,
       "failedRequests": 0,
-      "averageLatency": 211,
-      "minLatency": 189,
-      "maxLatency": 245,
+      "averageLatency": 109,
+      "minLatency": 37,
+      "maxLatency": 181,
       "successRate": 100,
       "averageCategory": "Fast (Excellent)"
     }
@@ -201,94 +167,54 @@ The tool saves detailed results in JSON format:
 ]
 ```
 
-## Error Handling
-
-The tool handles various error scenarios:
-
-### Network Connectivity Issues
-```
-❌ Request 1/5: Failed - Network connectivity issue: getaddrinfo ENOTFOUND
-```
-
-### Request Timeouts
-```
-❌ Request 2/5: Failed - Request timeout after 30000ms
-```
-
-### HTTP Errors
-```
-❌ Request 3/5: Failed - HTTP 404: Not Found
-```
-
-### Missing Environment Variables
-```
-❌ Configuration Error: API_URL environment variable is required
-```
-
 ## Exit Codes
 
 - `0`: All requests successful
-- `1`: One or more requests failed or configuration error
+- `1`: One or more requests failed
 
-## Troubleshooting
+## Requirements
 
-### Common Issues
+- Node.js >= 18.0.0
+- Internet connection for API testing
 
-1. **"API_URL environment variable is required"**
-   - Create a `.env` file with `API_URL=your-endpoint`
-   - Or set the environment variable: `export API_URL="your-endpoint"`
+## Development
 
-2. **"Invalid API_URL format"**
-   - Ensure the URL includes protocol (http:// or https://)
-   - Check for proper URL encoding of query parameters
+### Local Development Setup
 
-3. **"Request timeout"**
-   - Increase timeout: `REQUEST_TIMEOUT=60000`
-   - Check if the API endpoint is accessible
-
-4. **"Network connectivity issue"**
-   - Verify internet connection
-   - Check if the API endpoint is reachable
-   - Verify firewall settings
-
-### Debug Mode
-
-For additional debugging, you can check the log file for detailed error information and request history.
-
-## API Integration Examples
-
-### Treasury API (from your example)
 ```bash
-API_URL="http://localhost:8081/v1/treasury/timeseries?request_id=0xee17D0A243361997245A0EBA740e26020952f249&balance_addresses=cosmos10z4zxezrqx2lwxcluf7rm9vqf93d2pwfsrvlat,osmo10z4zxezrqx2lwxcluf7rm9vqf93d2pwfccl0te&from_date=2025-10-11T02%3A20%3A40.648Z&to_date=2025-10-20T02%3A20%3A40.648Z&source=balance&granularity=10minutes"
+# Clone the repository
+git clone <repository-url>
+cd test-api-latency
+
+# Install dependencies
+npm install
+
+# Test locally
+node bin/apin.js https://jsonplaceholder.typicode.com/posts/1 --count 2
+
+# Link for global testing
+npm link
+apin https://jsonplaceholder.typicode.com/posts/1 --count 2
 ```
 
-### Public APIs for Testing
-```bash
-# JSONPlaceholder (always available)
-API_URL="https://jsonplaceholder.typicode.com/posts/1"
+### Project Structure
 
-# HTTPBin (with artificial delay)
-API_URL="https://httpbin.org/delay/1"
-
-# GitHub API
-API_URL="https://api.github.com/users/octocat"
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+├── bin/
+│   └── apin.js          # CLI entry point
+├── latency-test.js      # Core testing logic
+├── package.json         # Package configuration
+└── README.md           # Documentation
+```
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-For issues and questions:
-1. Check the troubleshooting section above
-2. Review the log files for detailed error information
-3. Create an issue with detailed error messages and configuration
+If you encounter any issues or have questions, please file an issue on the project repository.
